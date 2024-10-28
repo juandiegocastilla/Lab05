@@ -54,7 +54,49 @@ public class CSV extends JFrame {
     public boolean isDesplazado() { return ndesplazados; }
     public boolean isMayorDeEdad() { return mayorDeEdad; }
 
-  
+  public CSV() {
+        
+        setTitle("CSV Datos Cargados");
+        setSize(400, 300);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        
+        comboLocalidad = new JComboBox<>();
+        comboDesplazados = new JComboBox<>(new String[]{"Todos", "Si", "No"});
+        comboMayorDeEdad = new JComboBox<>(new String[]{"Todos", "Si", "No"});
+        jButtonFiltrar = new JButton("Filtrar");
+        jButtonLimpiar = new JButton("Limpiar Selección");
+        jButtonImprimir = new JButton("Imprimir CSV");
+
+        
+        labelLocalidad = new JLabel("Localidad: ");
+        labelDesplazado = new JLabel("Desplazado: ");
+        labelMayorDeEdad = new JLabel("Mayor de Edad: ");
+        labelResultado = new JLabel("");
+
+        
+        jButtonFiltrar.addActionListener(evt -> filtrarDatos());
+        jButtonLimpiar.addActionListener(evt -> limpiarSeleccion());
+        jButtonImprimir.addActionListener(evt -> imprimirCSV());
+
+       
+        JPanel panel = new JPanel();
+        panel.add(comboLocalidad);
+        panel.add(comboDesplazados);
+        panel.add(comboMayorDeEdad);
+        panel.add(jButtonFiltrar);
+        panel.add(jButtonLimpiar);
+        panel.add(jButtonImprimir);
+        panel.add(labelLocalidad);
+        panel.add(labelDesplazado);
+        panel.add(labelMayorDeEdad);
+        panel.add(labelResultado);
+
+        add(panel);
+
+        cargarDatosDesdeCSV();
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new CSV().setVisible(true));
