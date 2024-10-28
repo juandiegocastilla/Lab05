@@ -133,6 +133,58 @@ public class CSV extends JFrame {
 
         return estudiantes;
     }
+  List<CSV> estudiantes = new ArrayList<>();
+
+    private void cargarDatosDesdeCSV() {
+        try {
+            estudiantes = leerEstudiantesDesdeCSV("src/distribucion.csv");
+            ComboLocalidades();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar datos: " + e.getMessage());
+        }
+    }
+
+    public void ComboLocalidades() {
+        Set<String> localidades = estudiantes.stream()
+                .map(CSV::getLocalidad)
+                .collect(Collectors.toSet());
+
+        comboLocalidad.addItem("Todos");
+        localidades.forEach(localidad -> comboLocalidad.addItem(localidad));
+    }
+
+    private void filtrarDatos() {
+        String localidadSeleccionada = (String) comboLocalidad.getSelectedItem();
+        String desplazadoSeleccionado = (String) comboDesplazados.getSelectedItem();
+        String mayorDeEdadSeleccionado = (String) comboMayorDeEdad.getSelectedItem();
+
+        
+        List<CSV> filtrados = estudiantes.stream()
+                .filter(estudiante -> (localidadSeleccionada.equals("Todos") || estudiante.getLocalidad().equals(localidadSeleccionada)) &&
+                        (desplazadoSeleccionado.equals("Todos") || 
+                         (desplazadoSeleccionado.equals("Si") && estudiante.isDesplazado()) ||
+                         (desplazadoSeleccionado.equals("No") && !estudiante.isDesplazado())) &&
+                        (mayorDeEdadSeleccionado.equals("Todos") || 
+                         (mayorDeEdadSeleccionado.equals("Si") && estudiante.isMayorDeEdad()) ||
+                         (mayorDeEdadSeleccionado.equals("No") && !estudiante.isMayorDeEdad())))
+                .collect(Collectors.toList());
+
+       
+        if (!filtrados.isEmpty()) {
+            CSV estudianteEjemplo = filtrados.get(0);
+            labelLocalidad.setText("Localidad: " + estudianteEjemplo.getLocalidad());
+            labelDesplazado.setText("Desplazado: " + (estudianteEjemplo.isDesplazado() ? "Sí" : "No"));
+            labelMayorDeEdad.setText("Mayor de Edad: " + (estudianteEjemplo.isMayorDeEdad() ? "Sí" : "No"));
+            labelResultado.setText("Total filtrados: " + filtrados.size());
+        } else {
+            labelLocalidad.setText("Localidad: ");
+            labelDesplazado.setText("Desplazado: ");
+            labelMayorDeEdad.setText("Mayor de Edad: ");
+            labelResultado.setText("No se encontraron resultados.");
+        }
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new CSV().setVisible(true));
