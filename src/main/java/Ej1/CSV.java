@@ -97,6 +97,42 @@ public class CSV extends JFrame {
 
         cargarDatosDesdeCSV();
     }
+  public List<CSV> leerEstudiantesDesdeCSV(String archivoCSV) {
+        List<CSV> estudiantes = new ArrayList<>();
+        String linea = "";
+        String divisor = ";"; 
+
+        try (BufferedReader Leer = new BufferedReader(new FileReader(archivoCSV))) {
+            Leer.readLine(); 
+
+            while ((linea = Leer.readLine()) != null) {
+                String[] datos = linea.split(divisor);
+
+                if (datos.length != 6) {
+                    System.out.println("Línea inválida: " + linea);
+                    continue;
+                }
+
+                String localidad = datos[0];
+                String puntoAtencion = datos[1];
+                float hombres = Float.parseFloat(datos[2]);
+                float mujeres = Float.parseFloat(datos[3]);
+
+                
+                boolean desplazado = datos[4].trim().equalsIgnoreCase("Si");
+                boolean mayorDeEdad = datos[5].trim().equalsIgnoreCase("Si");
+
+                CSV estudiante = new CSV(localidad, puntoAtencion, hombres, mujeres, desplazado, mayorDeEdad);
+                estudiantes.add(estudiante);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            System.out.println("Error al convertir datos: " + e.getMessage());
+        }
+
+        return estudiantes;
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new CSV().setVisible(true));
