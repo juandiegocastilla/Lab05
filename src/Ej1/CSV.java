@@ -14,6 +14,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.*;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 public class CSV extends JFrame {
 
@@ -31,7 +36,7 @@ public class CSV extends JFrame {
     private JButton jButtonFiltrar;
     private JButton jButtonLimpiar;
     private JButton jButtonImprimir;
-
+   private JButton GraficaBarras;
     
     private JLabel labelLocalidad;
     private JLabel labelDesplazado;
@@ -57,7 +62,7 @@ public class CSV extends JFrame {
   public CSV() {
         
         setTitle("CSV Datos Cargados");
-        setSize(400, 300);
+        setSize(400, 400);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -68,8 +73,16 @@ public class CSV extends JFrame {
         jButtonFiltrar = new JButton("Filtrar");
         jButtonLimpiar = new JButton("Limpiar Selección");
         jButtonImprimir = new JButton("Imprimir CSV");
+          GraficaBarras = new JButton("Gráfica de Barras");
+       
+       
 
-        
+
+        GraficaBarras.addActionListener(evt -> mostrarGraficaBarras());
+
+
+   
+    
         labelLocalidad = new JLabel("Localidad: ");
         labelDesplazado = new JLabel("Desplazado: ");
         labelMayorDeEdad = new JLabel("Mayor de Edad: ");
@@ -92,7 +105,8 @@ public class CSV extends JFrame {
         panel.add(labelDesplazado);
         panel.add(labelMayorDeEdad);
         panel.add(labelResultado);
-
+       panel.add(GraficaBarras);
+      
         add(panel);
 
         cargarDatosDesdeCSV();
@@ -212,6 +226,45 @@ public class CSV extends JFrame {
             JOptionPane.showMessageDialog(this, "Error al imprimir: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
+    private List<CSV> obtenerDatosFiltrados() {
+    String localidadSeleccionada = (String) comboLocalidad.getSelectedItem();
+    String desplazadoSeleccionado = (String) comboDesplazados.getSelectedItem();
+    String mayorDeEdadSeleccionado = (String) comboMayorDeEdad.getSelectedItem();
+
+    return estudiantes.stream()
+            .filter(estudiante -> (localidadSeleccionada.equals("Todos") || estudiante.getLocalidad().equals(localidadSeleccionada)) &&
+                    (desplazadoSeleccionado.equals("Todos") || 
+                     (desplazadoSeleccionado.equals("Si") && estudiante.isDesplazado()) ||
+                     (desplazadoSeleccionado.equals("No") && !estudiante.isDesplazado())) &&
+                    (mayorDeEdadSeleccionado.equals("Todos") || 
+                     (mayorDeEdadSeleccionado.equals("Si") && estudiante.isMayorDeEdad()) ||
+                     (mayorDeEdadSeleccionado.equals("No") && !estudiante.isMayorDeEdad())))
+            .collect(Collectors.toList());
+}
+    private void mostrarGraficaBarras() {
+    List<CSV> filtrados = obtenerDatosFiltrados();
+    
+    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    for (CSV estudiante : filtrados) {
+        dataset.addValue(estudiante.getHombres(), "Hombres", estudiante.getLocalidad());
+        dataset.addValue(estudiante.getMujeres(), "Mujeres", estudiante.getLocalidad());
+    }
+
+    JFreeChart chart = ChartFactory.createBarChart(
+            "Distribución por Localidad",
+            "Localidad",
+            "Cantidad",
+            dataset,
+            PlotOrientation.VERTICAL,
+            true, true, false);
+    
+    ChartPanel chartPanel = new ChartPanel(chart);
+    JFrame frame = new JFrame("Gráfica de Barras");
+    frame.setContentPane(chartPanel);
+    frame.setSize(800, 600);
+    frame.setVisible(true);
+}
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new CSV().setVisible(true));
