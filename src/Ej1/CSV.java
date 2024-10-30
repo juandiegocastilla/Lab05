@@ -168,7 +168,7 @@ public class CSV extends JFrame {
         comboLocalidad.addItem("Todos");
         localidades.forEach(localidad -> comboLocalidad.addItem(localidad));
     }
-
+List<CSV> filtrados = new ArrayList<>();
     private void filtrarDatos() {
         String localidadSeleccionada = (String) comboLocalidad.getSelectedItem();
         String desplazadoSeleccionado = (String) comboDesplazados.getSelectedItem();
@@ -213,7 +213,7 @@ public class CSV extends JFrame {
         String archivoSalida = "src/datos_filtrados.csv"; 
         try (FileWriter escri = new FileWriter(archivoSalida)) {
             escri.append("Localidad;PuntoAtencion;Hombres;Mujeres;Desplazado;MayorDeEdad\n");
-            for (CSV estudiante : estudiantes) {
+            for (CSV estudiante : filtrados) {
                 escri.append(estudiante.getLocalidad()).append(";")
                       .append(estudiante.getPuntoAtencion()).append(";")
                       .append(String.valueOf(estudiante.getHombres())).append(";")
