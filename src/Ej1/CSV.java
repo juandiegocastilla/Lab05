@@ -19,6 +19,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 
 public class CSV extends JFrame {
 
@@ -37,12 +38,12 @@ public class CSV extends JFrame {
     private JButton jButtonLimpiar;
     private JButton jButtonImprimir;
    private JButton GraficaBarras;
-    
+    private  JButton GraficaPastel;;
     private JLabel labelLocalidad;
     private JLabel labelDesplazado;
     private JLabel labelMayorDeEdad;
     private JLabel labelResultado;
-
+ 
     public CSV(String Localidad, String Patencion, float nhombres, float nmujeres, boolean ndesplazados, boolean mayorDeEdad) {
         this.Localidad = Localidad;
         this.Patencion = Patencion;
@@ -75,7 +76,7 @@ public class CSV extends JFrame {
         jButtonImprimir = new JButton("Imprimir CSV");
           GraficaBarras = new JButton("Gráfica de Barras");
        
-       
+       GraficaPastel= new JButton("Gráfica de Pastel");
 
 
         GraficaBarras.addActionListener(evt -> mostrarGraficaBarras());
@@ -93,7 +94,7 @@ public class CSV extends JFrame {
         jButtonLimpiar.addActionListener(evt -> limpiarSeleccion());
         jButtonImprimir.addActionListener(evt -> imprimirCSV());
 
-       
+       GraficaPastel.addActionListener(evt -> mostrarGraficaPastel());
         JPanel panel = new JPanel();
         panel.add(comboLocalidad);
         panel.add(comboDesplazados);
@@ -106,7 +107,7 @@ public class CSV extends JFrame {
         panel.add(labelMayorDeEdad);
         panel.add(labelResultado);
        panel.add(GraficaBarras);
-      
+      panel.add(GraficaPastel);
         add(panel);
 
         cargarDatosDesdeCSV();
@@ -245,27 +246,49 @@ public class CSV extends JFrame {
     private void mostrarGraficaBarras() {
     List<CSV> filtrados = obtenerDatosFiltrados();
     
-    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-    for (CSV estudiante : filtrados) {
-        dataset.addValue(estudiante.getHombres(), "Hombres", estudiante.getLocalidad());
-        dataset.addValue(estudiante.getMujeres(), "Mujeres", estudiante.getLocalidad());
-    }
+    filtrados.forEach(estudiante -> {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        dataset.addValue(estudiante.getHombres(), "Hombres", estudiante.getPuntoAtencion());
+        dataset.addValue(estudiante.getMujeres(), "Mujeres", estudiante.getPuntoAtencion());
 
-    JFreeChart chart = ChartFactory.createBarChart(
-            "Distribución por Localidad",
-            "Localidad",
-            "Cantidad",
-            dataset,
-            PlotOrientation.VERTICAL,
-            true, true, false);
+        JFreeChart chart = ChartFactory.createBarChart(
+                "Distribución de Hombres y Mujeres en " + estudiante.getLocalidad(),
+                "Punto de Atención",
+                "Cantidad",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true, true, false);
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        JFrame frame = new JFrame("Gráfica de Barras - " + estudiante.getLocalidad());
+        frame.setContentPane(chartPanel);
+        frame.setSize(600, 400);
+        frame.setVisible(true);
+    });
     
-    ChartPanel chartPanel = new ChartPanel(chart);
-    JFrame frame = new JFrame("Gráfica de Barras");
-    frame.setContentPane(chartPanel);
-    frame.setSize(800, 600);
-    frame.setVisible(true);
+    
 }
+    private void mostrarGraficaPastel() {
+    List<CSV> filtrados = obtenerDatosFiltrados();
 
+    filtrados.forEach(estudiante -> {
+        DefaultPieDataset datos = new DefaultPieDataset();
+        datos.setValue("Hombres", estudiante.getHombres());
+        datos.setValue("Mujeres", estudiante.getMujeres());
+
+        JFreeChart grafcir = ChartFactory.createPieChart(
+                "Distribución de Hombres y Mujeres en " + estudiante.getLocalidad(),
+                datos,
+                true, true, false);
+
+        ChartPanel Panel = new ChartPanel(grafcir);
+        JFrame frame = new JFrame("Gráfica de Pastel - " + estudiante.getLocalidad());
+        frame.setContentPane(Panel);
+        frame.setSize(600, 600);
+        frame.setVisible(true);
+    });
+}
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new CSV().setVisible(true));
     }
